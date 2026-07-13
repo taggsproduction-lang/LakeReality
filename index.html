@@ -1,0 +1,1323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lake Reality — Live Preview of Your New Website</title>
+<style>
+/* =========================================================================
+   Lake Reality — Interactive "future-state" demo.
+   Self-contained clickable prototype of the FINISHED WordPress site.
+   Matches the palette/typography of Discovery-Presentation.html.
+   Everything below is a simulation — no real payments, no real data.
+   ========================================================================= */
+:root{
+  --ink:#0C2A33; --deep:#0B3B49; --deep2:#0E4A5A;
+  --teal:#2A9D8F; --teal-dk:#1C7C8C; --teal-lt:#8FD4C9;
+  --blue:#3B6FA0; --blue-dk:#2f5c86;
+  --sand:#E9C46A; --sand-dk:#CFA23C;
+  --paper:#F4F9FA; --paper2:#E7F1F3; --line:#D3E2E6; --muted:#5B7A82;
+  --ok:#2A9D8F; --warn:#C77D30; --bad:#C4433E;
+  --shadow:0 10px 30px rgba(11,59,73,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:#071c22;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+     color:var(--ink);display:flex;align-items:flex-start;justify-content:center;padding:26px 18px 90px}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif}
+button{font-family:inherit}
+
+/* ---- Outer browser frame ---------------------------------------------- */
+#frame{width:100%;max-width:1180px;background:#fff;border-radius:16px;overflow:hidden;
+       box-shadow:0 30px 80px rgba(0,0,0,.55);position:relative}
+.chrome{background:#0B3B49;display:flex;align-items:center;gap:14px;padding:11px 16px}
+.dots{display:flex;gap:7px}
+.dots i{width:12px;height:12px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#ff5f56}.dots i:nth-child(2){background:#ffbd2e}.dots i:nth-child(3){background:#27c93f}
+.addr{flex:1;background:#0E4A5A;color:#cfe6ea;border-radius:8px;padding:7px 14px;font-size:13.5px;
+      display:flex;align-items:center;gap:9px}
+.addr svg{width:13px;height:13px;stroke:#8FD4C9;fill:none;stroke-width:2}
+.addr b{color:#fff;font-weight:600}
+.viewtoggle{display:flex;background:#0E4A5A;border-radius:999px;padding:3px}
+.viewtoggle button{border:0;background:none;color:#9dc4cc;font-size:12.5px;font-weight:700;letter-spacing:.04em;
+      padding:6px 14px;border-radius:999px;cursor:pointer;text-transform:uppercase}
+.viewtoggle button.on{background:var(--sand);color:#0B3B49}
+
+/* ---- Site top bar ------------------------------------------------------ */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 30px;border-bottom:1px solid var(--line);
+        background:linear-gradient(180deg,#fff, #fbfdfe)}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(150deg,var(--teal),var(--blue));
+      display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);position:relative;overflow:hidden;flex:0 0 auto}
+.logo svg{width:26px;height:26px}
+.brand .name{font-family:Georgia,serif;font-weight:700;font-size:20px;color:var(--deep);line-height:1}
+.brand .sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.nav{display:flex;gap:2px;flex-wrap:wrap}
+.nav button{border:0;background:none;font-size:13.5px;color:var(--ink);padding:9px 13px;border-radius:9px;cursor:pointer;font-weight:600}
+.nav button:hover{background:var(--paper2)}
+.nav button.active{background:var(--deep);color:#fff}
+.who{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted)}
+.who .signout{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700;
+      color:var(--muted);cursor:pointer}
+.who .signout:hover{border-color:var(--teal);color:var(--teal-dk)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--sand);color:#5b4410;display:flex;align-items:center;
+        justify-content:center;font-weight:700;font-size:14px}
+
+/* ---- Page canvas ------------------------------------------------------- */
+.canvas{background:var(--paper);min-height:600px;padding:30px 34px 42px}
+.page{display:none;animation:fade .35s ease}
+.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--teal-dk);margin:0 0 8px}
+.h-lg{font-size:30px;margin:0 0 4px;color:var(--deep)}
+.sub{color:var(--muted);font-size:15px;margin:0 0 22px}
+
+/* grid + cards */
+.grid{display:grid;gap:18px}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font-size:18px;color:var(--deep)}
+.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+
+/* membership card */
+.memcard{background:linear-gradient(140deg,var(--deep),var(--teal-dk));color:#eaf6f7;border-radius:18px;padding:24px 26px;
+         position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(11,59,73,.28)}
+.memcard::after{content:"";position:absolute;right:-40px;bottom:-60px;width:220px;height:220px;border-radius:50%;
+        background:rgba(255,255,255,.06)}
+.memcard .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--sand)}
+.memcard .nm{font-family:Georgia,serif;font-size:26px;margin:6px 0 2px}
+.memcard .tier{display:inline-block;margin-top:12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);
+        padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600}
+.memcard .row{display:flex;justify-content:space-between;margin-top:20px;font-size:13px;color:#bfe0e4;position:relative;z-index:2;gap:14px}
+.memcard .row b{color:#fff;display:block;font-size:15px;margin-top:2px}
+
+/* alert banners */
+.banner{display:flex;align-items:center;gap:16px;border-radius:14px;padding:16px 20px;margin-bottom:20px}
+.banner.due{background:#fdf3e3;border:1px solid #f0d9a8}
+.banner.good{background:#e6f5f2;border:1px solid #bfe6de}
+.banner .ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.banner.due .ico{background:#f6dfae;color:#8a5a12}
+.banner.good .ico{background:#bfe6de;color:#14675c}
+.banner .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2}
+.banner .txt{flex:1}
+.banner .txt b{display:block;font-size:15.5px;color:var(--ink)}
+.banner .txt span{font-size:13.5px;color:var(--muted)}
+
+/* buttons */
+.btn{border:0;border-radius:10px;padding:12px 20px;font-size:14.5px;font-weight:700;cursor:pointer;
+     display:inline-flex;align-items:center;gap:9px;transition:transform .06s ease, box-shadow .2s, background .2s}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--teal);color:#fff;box-shadow:0 8px 20px rgba(42,157,143,.3)}
+.btn.pri:hover{background:var(--teal-dk)}
+.btn.dark{background:var(--deep);color:#fff}.btn.dark:hover{background:var(--deep2)}
+.btn.gold{background:var(--sand);color:#5b4410}.btn.gold:hover{background:var(--sand-dk)}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--deep)}
+.btn.ghost:hover{border-color:var(--teal)}
+.btn.sm{padding:8px 14px;font-size:13px}
+.btn:disabled{opacity:.6;cursor:default}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.tbl th{background:var(--paper2);text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+        color:var(--muted);padding:12px 16px}
+.tbl td{padding:13px 16px;border-top:1px solid var(--line);font-size:14px}
+.tbl tr:hover td{background:#fafdfe}
+.tbl tr.clickable{cursor:pointer}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.paid{background:#e6f5f2;color:#178a7a}
+.pill.open{background:#fdeede;color:#b5731f}
+.pill.over{background:#fbe7e5;color:#c0392b}
+.pill.info{background:#e8eef7;color:#375f96}
+
+/* KPI tiles */
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.kpi .v{font-family:Georgia,serif;font-size:30px;color:var(--deep);margin:6px 0 2px;line-height:1}
+.kpi .d{font-size:12.5px;color:var(--muted)}
+.kpi .d.up{color:var(--ok);font-weight:700}
+
+/* forms */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px;letter-spacing:.02em}
+.inp{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px;color:var(--ink);
+     background:#fff;font-family:inherit}
+.inp:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,.14)}
+.inrow{display:flex;gap:12px;flex-wrap:wrap}.inrow .field{flex:1;min-width:120px}
+.cardbox{border:1.5px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+.cardbox .strip{display:flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--muted);font-size:12.5px}
+.cardbrand{display:flex;gap:5px;margin-left:auto}
+.cardbrand span{font-size:10px;font-weight:800;letter-spacing:.04em;padding:3px 6px;border-radius:4px;background:var(--paper2);color:var(--deep)}
+.chk{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--deep);font-weight:600;cursor:pointer}
+.chk input{width:18px;height:18px;flex:0 0 auto}
+
+/* events */
+.evrow{display:flex;gap:18px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;
+       box-shadow:var(--shadow);align-items:center;margin-bottom:14px;cursor:pointer;transition:border-color .15s, transform .1s}
+.evrow:hover{border-color:var(--teal);transform:translateX(3px)}
+.evdate{flex:0 0 auto;width:64px;text-align:center;background:var(--deep);color:#fff;border-radius:11px;padding:10px 0}
+.evdate .mo{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sand)}
+.evdate .dy{font-family:Georgia,serif;font-size:26px;line-height:1}
+.evrow .info{flex:1}
+.evrow .info h3{margin:0 0 3px;font-size:17px;color:var(--deep)}
+.evrow .info p{margin:0;color:var(--muted);font-size:13px}
+.evrow .price{font-family:Georgia,serif;font-size:20px;color:var(--teal-dk);font-weight:700}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+     padding:3px 8px;border-radius:6px;background:var(--paper2);color:var(--teal-dk);margin-right:6px}
+
+/* ticket / QR */
+.ticket{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--line);max-width:440px;margin:0 auto}
+.ticket .top{background:linear-gradient(140deg,var(--deep),var(--teal-dk));color:#fff;padding:22px 24px}
+.ticket .top .kicker{color:var(--sand)}
+.ticket .top h3{margin:2px 0 0;font-size:22px;color:#fff}
+.ticket .body{padding:22px 24px;display:flex;gap:20px;align-items:center}
+.qr{width:120px;height:120px;flex:0 0 auto;border-radius:10px;background:#fff;padding:8px;border:1px solid var(--line)}
+.ticket .meta div{margin-bottom:10px}
+.ticket .meta .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ticket .meta .val{font-size:15px;color:var(--deep);font-weight:600}
+
+/* stepbar */
+.steps{display:flex;align-items:center;gap:0;margin:0 0 24px;flex-wrap:wrap}
+.steps .s{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:600}
+.steps .s .n{width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;
+      align-items:center;justify-content:center;font-size:12.5px}
+.steps .s.on{color:var(--deep)}
+.steps .s.on .n{background:var(--teal);border-color:var(--teal);color:#fff}
+.steps .s.done .n{background:var(--deep);border-color:var(--deep);color:#fff}
+.steps .bar{flex:1;min-width:20px;height:2px;background:var(--line);margin:0 12px}
+.steps .bar.fill{background:var(--teal)}
+
+/* success check */
+.success{text-align:center;padding:22px 0}
+.checkwrap{width:84px;height:84px;border-radius:50%;background:#e6f5f2;display:flex;align-items:center;justify-content:center;
+           margin:0 auto 16px;animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.checkwrap svg{width:42px;height:42px;stroke:var(--ok);fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.checkwrap svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .18s forwards ease}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* misc */
+.rowbtwn{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.muted{color:var(--muted)} .mt{margin-top:20px} .mb{margin-bottom:16px}
+.tinynote{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:14px}
+.tinynote svg{width:14px;height:14px;stroke:var(--teal-dk);fill:none;stroke-width:2;flex:0 0 auto}
+.linebtn{border:0;background:none;color:var(--teal-dk);font-weight:700;cursor:pointer;font-size:13.5px;padding:0}
+.linebtn:hover{text-decoration:underline}
+.summ{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.summ .li{display:flex;justify-content:space-between;padding:9px 0;font-size:14.5px;border-bottom:1px dashed var(--line)}
+.summ .li.total{border:0;padding-top:14px;font-size:17px;font-weight:800;color:var(--deep)}
+.summ .li .muted{font-weight:400}
+.toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;
+       padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 12px 30px rgba(0,0,0,.3);
+       opacity:0;pointer-events:none;transition:.35s;display:flex;align-items:center;gap:10px;z-index:60}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:18px;height:18px;stroke:var(--sand);fill:none;stroke-width:2.4}
+
+/* charts */
+.chartcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.chartcard h3{margin:0 0 2px;font-size:16px;color:var(--deep)}
+.chartcard .cap{font-size:12px;color:var(--muted);margin:0 0 12px}
+.legend{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.legend .li{display:flex;align-items:center;gap:9px}
+.legend .sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+.legend b{color:var(--deep)}
+.hbar{display:grid;gap:12px}
+.hbar .row{display:grid;grid-template-columns:78px 1fr 64px;align-items:center;gap:10px;font-size:13px}
+.hbar .track{height:16px;background:var(--paper2);border-radius:999px;overflow:hidden}
+.hbar .fill{height:100%;border-radius:999px}
+.hbar .amt{text-align:right;font-weight:700;color:var(--deep);font-variant-numeric:tabular-nums}
+
+/* media / instagram */
+.igprofile{display:flex;align-items:center;gap:18px;background:#fff;border:1px solid var(--line);border-radius:16px;
+   padding:16px 22px;box-shadow:var(--shadow);margin-bottom:18px;flex-wrap:wrap}
+.igring{width:64px;height:64px;border-radius:50%;padding:3px;flex:0 0 auto;
+   background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.igring .inner{width:100%;height:100%;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.igring .inner .logo{width:44px;height:44px}
+.iggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mediatile{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer}
+.mediatile svg.scene{position:absolute;inset:0;width:100%;height:100%}
+.mediatile .cap{position:absolute;left:8px;bottom:7px;z-index:2;color:#fff;font-size:11px;font-weight:700;
+   text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.mediatile .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;
+   opacity:0;transition:.2s;background:rgba(11,59,73,0)}
+.mediatile:hover .ov{opacity:1;background:rgba(11,59,73,.42)}
+.mediatile .ov svg{width:22px;height:22px;stroke:#fff;fill:#fff}
+.dropzone{border:2px dashed var(--teal-lt);border-radius:14px;padding:32px 20px;text-align:center;background:#fff;cursor:pointer}
+.dropzone:hover{border-color:var(--teal);background:#fafefe}
+.dropzone svg{width:34px;height:34px;stroke:var(--teal-dk);fill:none;stroke-width:1.8;margin-bottom:8px}
+.dropzone b{color:var(--deep);font-size:15px}
+@media(max-width:860px){.iggrid{grid-template-columns:repeat(2,1fr)}}
+
+/* intro overlay */
+#intro{position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 0%, #0E4A5A, #071c22);z-index:200;
+       display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+#intro .box{max-width:640px}
+#intro .eyebrow{color:var(--sand);letter-spacing:.24em;text-transform:uppercase;font-size:13px;font-weight:700}
+#intro h1{color:#fff;font-size:44px;line-height:1.1;margin:16px 0 12px}
+#intro p{color:#bfe0e4;font-size:17px;line-height:1.6;margin:0 auto 10px;max-width:52ch}
+#intro .startbtn{margin-top:26px;background:var(--sand);color:#0B3B49;border:0;border-radius:12px;padding:15px 30px;
+       font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 14px 34px rgba(233,196,106,.28)}
+#intro .startbtn:hover{background:#f0cf7e}
+#intro .demonote{margin-top:22px;font-size:12.5px;color:#7fb6bf;letter-spacing:.02em}
+.hidden{display:none!important}
+
+/* guide chip */
+.guide{background:linear-gradient(180deg,#fff,#f7fbfc);border:1px solid var(--line);border-left:4px solid var(--sand);
+       border-radius:12px;padding:13px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)}
+.guide .gi{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:#fbf1d6;color:#8a6a12;display:flex;
+      align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.guide p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.5}
+.guide b{color:var(--deep)}
+
+/* ===== LOGIN SCREENS ===== */
+.authwrap{min-height:600px;display:flex}
+.authpane{display:none;width:100%}
+.authpane.show{display:flex}
+.authpane .side{flex:1;padding:48px 46px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;color:#eaf6f7}
+.authpane .side.member{background:linear-gradient(150deg,var(--deep),var(--teal-dk))}
+.authpane .side.admin{background:linear-gradient(150deg,#12212b,#20323d)}
+.side .slogo{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+.side .slogo svg{width:30px;height:30px}
+.side .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:12px;font-weight:700;color:var(--sand)}
+.side.admin .eyebrow{color:#e7b34a}
+.side h2{font-size:34px;color:#fff;margin:12px 0 12px;line-height:1.12}
+.side p{font-size:15px;line-height:1.6;color:#cfe6ea;max-width:40ch;margin:0}
+.side .feats{margin:26px 0 0;padding:0;list-style:none;display:grid;gap:11px}
+.side .feats li{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:#dceff2}
+.side .feats svg{width:18px;height:18px;stroke:var(--sand);fill:none;stroke-width:2.4;flex:0 0 auto;margin-top:1px}
+.side .waves{position:absolute;left:0;right:0;bottom:0;opacity:.5}
+.authpane .form{flex:1;background:#fff;padding:48px 46px;display:flex;flex-direction:column;justify-content:center}
+.form .flogo{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+.form .flogo .nm{font-family:Georgia,serif;font-weight:700;font-size:18px;color:var(--deep)}
+.form h3{font-size:24px;color:var(--deep);margin:0 0 4px}
+.form .fsub{color:var(--muted);font-size:14px;margin:0 0 24px}
+.form .row-between{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 18px}
+.securebar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:18px;justify-content:center}
+.securebar svg{width:14px;height:14px;stroke:var(--teal-dk);fill:none;stroke-width:2}
+/* 2FA */
+.otp{display:flex;gap:10px;justify-content:center;margin:8px 0 6px}
+.otp input{width:52px;height:60px;text-align:center;font-size:26px;font-weight:700;color:var(--deep);
+     border:1.5px solid var(--line);border-radius:12px;font-family:Georgia,serif}
+.otp input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,157,143,.14)}
+.twofa-ico{width:64px;height:64px;border-radius:16px;background:var(--paper2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.twofa-ico svg{width:32px;height:32px;stroke:var(--teal-dk);fill:none;stroke-width:2}
+.side.admin .twofa-ico svg{stroke:var(--sand-dk)}
+
+@media (max-width:860px){
+  .c2,.c3,.c4{grid-template-columns:1fr}
+  .ticket .body{flex-direction:column}
+  .authpane{flex-direction:column}.authpane .side{display:none}
+  .hbar .row{grid-template-columns:70px 1fr 56px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ INTRO OVERLAY ============ -->
+<div id="intro">
+  <div class="box">
+    <div class="eyebrow">Lake Reality Homeowners Association</div>
+    <h1>A live preview of your new website</h1>
+    <p>This is a working, clickable walkthrough of the membership site we'll build — the real thing your members and volunteers will use.</p>
+    <p>You'll start at the login screen (with two-factor security), then click through it just like they will: pay dues, register for an event, rent the pavilion, and see the behind-the-scenes admin view that does the work your volunteers do by hand today.</p>
+    <div style="margin:22px auto 0;max-width:54ch;background:rgba(233,196,106,.1);border:1px solid rgba(233,196,106,.38);border-radius:14px;padding:16px 20px;color:#f3e6c4;font-size:14.5px;line-height:1.55">
+      <b style="color:#E9C46A">This is a bare-bones skeleton.</b> Every color, word, photo, price, and section you see is a placeholder — all of it is fully editable to Lake Reality's liking. Think of this as the frame; we'll dress it in your real branding, photos, and content together.
+    </div>
+    <button class="startbtn" onclick="startTour()">Start the walkthrough →</button>
+    <div class="demonote">Preview only — no real payments are processed and no real member data is shown.</div>
+  </div>
+</div>
+
+<!-- ============ APP FRAME ============ -->
+<div id="frame">
+  <!-- browser chrome -->
+  <div class="chrome">
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="addr">
+      <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      <span id="addrPath"><b>lakereality.org</b>/login</span>
+    </div>
+    <div class="viewtoggle">
+      <button id="tgMember" class="on" onclick="setMode('member')">Member view</button>
+      <button id="tgAdmin" onclick="setMode('admin')">Admin view</button>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- =====================  AUTH AREA  ============================ -->
+  <!-- ============================================================= -->
+  <div id="authArea" class="authwrap">
+
+    <!-- MEMBER LOGIN -->
+    <div class="authpane show" id="au_member_login">
+      <div class="side member">
+        <div class="slogo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 15c2 0 2 1.5 4 1.5S9 15 11 15s2 1.5 4 1.5S17 15 19 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M3 18.5c2 0 2 1.5 4 1.5s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5" stroke="#EAF6F7" stroke-width="1.6" stroke-linecap="round" opacity=".7"/><circle cx="17" cy="7.5" r="3" fill="#E9C46A"/></svg></div>
+        <div class="eyebrow">Member Portal</div>
+        <h2>Welcome back to<br>Lake Reality</h2>
+        <p>Your lake, online. Pay dues, grab event tickets, rent the pavilion, and keep your details current — all from one login.</p>
+        <ul class="feats">
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Pay dues by card in under a minute</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Register for lake events</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Request a pavilion rental</li>
+        </ul>
+      </div>
+      <div class="form">
+        <div class="flogo"><div class="logo" style="width:38px;height:38px"><svg viewBox="0 0 24 24" fill="none"><path d="M3 15c2 0 2 1.5 4 1.5S9 15 11 15s2 1.5 4 1.5S17 15 19 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="7.5" r="3" fill="#E9C46A"/></svg></div><span class="nm">Lake Reality</span></div>
+        <h3>Member sign-in</h3>
+        <p class="fsub">Enter your details — pre-filled for this demo.</p>
+        <div class="field"><label>Email</label><input class="inp" value="sarah.m@example.com"></div>
+        <div class="field"><label>Password</label><input class="inp" type="password" value="lakelife2026"></div>
+        <div class="row-between"><label class="chk"><input type="checkbox" checked> Remember me</label><button class="linebtn">Forgot password?</button></div>
+        <button class="btn pri" style="width:100%;justify-content:center" onclick="showAuth('au_member_2fa')">Sign in →</button>
+        <div class="securebar"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Protected by two-factor authentication</div>
+        <p style="text-align:center;margin:22px 0 0;font-size:14px;color:var(--muted)">New to the lake? <button class="linebtn" onclick="showAuth('au_member_signup')">Apply for membership →</button></p>
+      </div>
+    </div>
+
+    <!-- MEMBER 2FA -->
+    <div class="authpane" id="au_member_2fa">
+      <div class="side member">
+        <div class="slogo"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="10" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#fff" stroke-width="1.8"/></svg></div>
+        <div class="eyebrow">Step 2 of 2</div>
+        <h2>One more<br>quick check</h2>
+        <p>We use a second layer of security so only you can access your membership and payment history — the same protection your bank uses.</p>
+      </div>
+      <div class="form">
+        <div style="max-width:360px;margin:0 auto;text-align:center;width:100%">
+          <div class="twofa-ico"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <h3>Enter your code</h3>
+          <p class="fsub">We texted a 6-digit code to <b>(•••) •••-0142</b></p>
+          <div class="otp" data-otp>
+            <input maxlength="1" value="4" inputmode="numeric"><input maxlength="1" value="8" inputmode="numeric"><input maxlength="1" value="1" inputmode="numeric"><input maxlength="1" value="9" inputmode="numeric"><input maxlength="1" value="2" inputmode="numeric"><input maxlength="1" value="3" inputmode="numeric">
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin:4px 0 18px">Demo code pre-filled · any code works here</p>
+          <button class="btn pri" style="width:100%;justify-content:center" onclick="login('member')">Verify & enter portal →</button>
+          <p style="font-size:13px;color:var(--muted);margin-top:16px">Didn't get it? <button class="linebtn">Resend code</button> · <button class="linebtn" onclick="showAuth('au_member_login')">Back</button></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBER SIGNUP (public) -->
+    <div class="authpane" id="au_member_signup">
+      <div class="side member">
+        <div class="slogo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="eyebrow">Join the community</div>
+        <h2>Apply for<br>membership</h2>
+        <p>Buying or renting near Fayson Lakes? Apply online in two minutes. The board reviews new applications, then you're invited to pay your first season of dues by card.</p>
+        <ul class="feats">
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>No paper form to mail in</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Board approval built in</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Pay dues the moment you're approved</li>
+        </ul>
+      </div>
+      <div class="form" id="signupForm">
+        <h3>New member application</h3>
+        <p class="fsub">Tell us a bit about you — the board will review it.</p>
+        <div class="inrow">
+          <div class="field"><label>First name</label><input class="inp" value=""></div>
+          <div class="field"><label>Last name</label><input class="inp" value=""></div>
+        </div>
+        <div class="inrow">
+          <div class="field"><label>Email</label><input class="inp" value=""></div>
+          <div class="field"><label>Phone</label><input class="inp" value=""></div>
+        </div>
+        <div class="field"><label>Property address at the lake</label><input class="inp" placeholder="Street, Kinnelon, NJ 07405"></div>
+        <div class="inrow">
+          <div class="field"><label>Membership type</label><select class="inp"><option>Resident — $660 / yr</option><option>Associate — $660 / yr</option><option>Social — $377 / yr</option></select></div>
+          <div class="field"><label>How did you hear about us?</label><select class="inp"><option>A neighbor</option><option>Realtor</option><option>Lake event</option><option>Other</option></select></div>
+        </div>
+        <label class="chk mb"><input type="checkbox"> I have read and agree to the LRHA By-Laws & Rules</label>
+        <button class="btn pri" style="width:100%;justify-content:center" onclick="submitSignup()">Submit application →</button>
+        <p style="text-align:center;margin:18px 0 0;font-size:13.5px;color:var(--muted)"><button class="linebtn" onclick="showAuth('au_member_login')">← Back to sign-in</button></p>
+      </div>
+      <!-- signup success replaces the form -->
+      <div class="form hidden" id="signupDone">
+        <div class="success">
+          <div class="checkwrap"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h3>Application received!</h3>
+          <p class="fsub" style="max-width:38ch;margin:6px auto 0">Thanks — your application is now with the board for review. You'll get an email the moment you're approved, with a link to pay your first season of dues by card.</p>
+          <div style="background:var(--paper2);border-radius:12px;padding:14px 16px;margin:20px auto 0;max-width:340px;text-align:left;font-size:13px;color:var(--muted)">
+            <b style="color:var(--deep)">What happens next</b><br>1 · Board reviews your application &nbsp;→&nbsp; 2 · You're approved &nbsp;→&nbsp; 3 · Pay dues online &nbsp;→&nbsp; 4 · Portal access
+          </div>
+          <button class="btn ghost mt" onclick="showAuth('au_member_login')">Back to sign-in</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div class="authpane" id="au_admin_login">
+      <div class="side admin">
+        <div class="slogo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="#E9C46A" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="eyebrow">Administrator Access</div>
+        <h2>Board &amp;<br>Treasurer sign-in</h2>
+        <p>Restricted area. This console manages the roster, dues, invoicing, events, and member communication for the association.</p>
+        <ul class="feats">
+          <li><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>Authorized board members only</li>
+          <li><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>Every action is logged</li>
+        </ul>
+      </div>
+      <div class="form">
+        <div class="flogo"><div class="logo" style="width:38px;height:38px;background:linear-gradient(150deg,#20323d,#0B3B49)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="#E9C46A" stroke-width="1.8" stroke-linejoin="round"/></svg></div><span class="nm">Lake Reality · Admin</span></div>
+        <h3>Administrator sign-in</h3>
+        <p class="fsub">Restricted to board &amp; treasurer accounts.</p>
+        <div class="field"><label>Admin email</label><input class="inp" value="treasurer@lakereality.org"></div>
+        <div class="field"><label>Password</label><input class="inp" type="password" value="board-secure-2026"></div>
+        <div class="row-between"><label class="chk"><input type="checkbox"> Trust this device for 30 days</label><button class="linebtn">Reset access</button></div>
+        <button class="btn dark" style="width:100%;justify-content:center" onclick="showAuth('au_admin_2fa')">Sign in →</button>
+        <div class="securebar"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>Two-factor authentication required for admin</div>
+      </div>
+    </div>
+
+    <!-- ADMIN 2FA -->
+    <div class="authpane" id="au_admin_2fa">
+      <div class="side admin">
+        <div class="slogo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="#E9C46A" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+        <div class="eyebrow">Secure step 2 of 2</div>
+        <h2>Verify it's<br>really you</h2>
+        <p>Admin accounts require an authenticator code every sign-in. This protects the association's finances and member data.</p>
+      </div>
+      <div class="form">
+        <div style="max-width:360px;margin:0 auto;text-align:center;width:100%">
+          <div class="twofa-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 4v16M12 9h5M12 13h5"/></svg></div>
+          <h3>Authenticator code</h3>
+          <p class="fsub">Open your authenticator app and enter the current 6-digit code</p>
+          <div class="otp" data-otp>
+            <input maxlength="1" value="7" inputmode="numeric"><input maxlength="1" value="0" inputmode="numeric"><input maxlength="1" value="4" inputmode="numeric"><input maxlength="1" value="1" inputmode="numeric"><input maxlength="1" value="5" inputmode="numeric"><input maxlength="1" value="8" inputmode="numeric">
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin:4px 0 18px">Demo code pre-filled · any code works here</p>
+          <button class="btn dark" style="width:100%;justify-content:center" onclick="login('admin')">Verify & open console →</button>
+          <p style="font-size:13px;color:var(--muted);margin-top:16px"><button class="linebtn" onclick="showAuth('au_admin_login')">Back</button></p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /authArea -->
+
+  <!-- ============================================================= -->
+  <!-- ======================  APP AREA  ============================ -->
+  <!-- ============================================================= -->
+  <div id="appArea" class="hidden">
+  <!-- site top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 15c2 0 2 1.5 4 1.5S9 15 11 15s2 1.5 4 1.5S17 15 19 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M3 18.5c2 0 2 1.5 4 1.5s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5" stroke="#EAF6F7" stroke-width="1.6" stroke-linecap="round" opacity=".7"/><circle cx="17" cy="7.5" r="3" fill="#E9C46A"/></svg>
+      </div>
+      <div>
+        <div class="name">Lake Reality</div>
+        <div class="sub">Fayson Lakes · Kinnelon, NJ</div>
+      </div>
+    </div>
+    <div class="nav" id="navMember">
+      <button data-page="m_home" class="active" onclick="go('m_home')">My Dashboard</button>
+      <button data-page="m_dues" onclick="go('m_dues')">Pay Dues</button>
+      <button data-page="m_events" onclick="go('m_events')">Events</button>
+      <button data-page="m_pavilion" onclick="go('m_pavilion')">Pavilion</button>
+      <button data-page="m_media" onclick="go('m_media')">Media</button>
+      <button data-page="m_account" onclick="go('m_account')">My Account</button>
+    </div>
+    <div class="nav hidden" id="navAdmin">
+      <button data-page="a_dash" class="active" onclick="go('a_dash')">Dashboard</button>
+      <button data-page="a_members" onclick="go('a_members')">Members</button>
+      <button data-page="a_events" onclick="go('a_events')">Events</button>
+      <button data-page="a_invoices" onclick="go('a_invoices')">Invoicing</button>
+      <button data-page="a_email" onclick="go('a_email')">Email</button>
+      <button data-page="a_media" onclick="go('a_media')">Media</button>
+    </div>
+    <div class="who">
+      <span id="whoName">Sarah Mitchell</span>
+      <div class="avatar" id="whoAv">SM</div>
+      <button class="signout" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- page canvas -->
+  <div class="canvas">
+
+    <!-- ==================== MEMBER: DASHBOARD ==================== -->
+    <div class="page show" id="m_home">
+      <div class="guide"><div class="gi">i</div><p><b>Members log in to their own portal.</b> Everything they need — dues, events, pavilion, their info — is one click away. No phone calls to a volunteer.</p></div>
+      <div class="kicker">Welcome back</div>
+      <h1 class="h-lg">Good morning, Sarah</h1>
+      <p class="sub">Here's everything happening at the lake.</p>
+
+      <div class="banner due">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6"/><path d="M12 3 2 20h20L12 3z"/></svg></div>
+        <div class="txt"><b>Your 2026 season dues are ready</b><span>Associate membership — $660.00 · due before Memorial Day</span></div>
+        <button class="btn pri" onclick="go('m_dues')">Pay now</button>
+      </div>
+
+      <div class="grid c2" style="align-items:start">
+        <div class="memcard">
+          <div class="lbl">Membership card</div>
+          <div class="nm">Sarah Mitchell</div>
+          <span class="tier">Associate Member · In good standing</span>
+          <div class="row">
+            <div>Member since<b>2014</b></div>
+            <div>Household<b>2 adults</b></div>
+            <div>Lake access<b>Full</b></div>
+          </div>
+        </div>
+        <div style="display:grid;gap:16px">
+          <div class="card">
+            <h3>Upcoming at the lake</h3>
+            <p style="margin-bottom:12px">Medium Night is back — Fri, Aug 8. Members save $10.</p>
+            <button class="btn ghost sm" onclick="go('m_events')">See all events →</button>
+          </div>
+          <div class="card">
+            <h3>Planning a party?</h3>
+            <p style="margin-bottom:12px">Reserve the lakeside pavilion right from your account.</p>
+            <button class="btn ghost sm" onclick="go('m_pavilion')">Request the pavilion →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MEMBER: PAY DUES ==================== -->
+    <div class="page" id="m_dues">
+      <div class="guide"><div class="gi">i</div><p><b>The #1 request: real card payments.</b> Members pay by credit or debit in under a minute — secured by Stripe. The money lands in the association's own bank account.</p></div>
+      <div id="dues1">
+        <div class="steps">
+          <div class="s on"><span class="n">1</span>Your invoice</div><div class="bar"></div>
+          <div class="s"><span class="n">2</span>Payment</div><div class="bar"></div>
+          <div class="s"><span class="n">3</span>Done</div>
+        </div>
+        <h1 class="h-lg">2026 Season Dues</h1>
+        <p class="sub">Invoice #LR-2026-0148 · issued automatically on renewal</p>
+        <div class="grid c2" style="align-items:start">
+          <div class="summ">
+            <div class="li"><span>Associate membership — 2026 season</span><span>$640.00</span></div>
+            <div class="li"><span class="muted">Card convenience fee (2.9% + $0.30)</span><span class="muted">$20.00</span></div>
+            <div class="li total"><span>Total due</span><span>$660.00</span></div>
+            <button class="btn pri mt" style="width:100%;justify-content:center" onclick="duesStep(2)">Continue to payment →</button>
+            <div class="tinynote"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secured by Stripe · you can also pay by e-check (ACH)</div>
+          </div>
+          <div class="card">
+            <h3>Or set it and forget it</h3>
+            <p style="margin-bottom:14px">Turn on <b>auto-renew</b> and your dues are charged each spring automatically. No invoice to remember, no late notices — this is what quietly removes the volunteer chase every year.</p>
+            <label class="chk"><input type="checkbox"> Enroll in automatic annual renewal</label>
+          </div>
+        </div>
+      </div>
+      <div id="dues2" class="hidden">
+        <div class="steps">
+          <div class="s done"><span class="n">✓</span>Your invoice</div><div class="bar fill"></div>
+          <div class="s on"><span class="n">2</span>Payment</div><div class="bar"></div>
+          <div class="s"><span class="n">3</span>Done</div>
+        </div>
+        <h1 class="h-lg">Payment</h1>
+        <p class="sub">Enter your card — this is a demo, the fields are pre-filled.</p>
+        <div class="grid c2" style="align-items:start">
+          <div class="card">
+            <div class="field"><label>Name on card</label><input class="inp" value="Sarah Mitchell"></div>
+            <div class="cardbox">
+              <div class="strip">Card number<span class="cardbrand"><span>VISA</span><span>MC</span><span>AMEX</span></span></div>
+              <input class="inp" value="4242 4242 4242 4242" style="letter-spacing:.08em">
+              <div class="inrow" style="margin-top:12px">
+                <div class="field" style="margin:0"><label>Expiry</label><input class="inp" value="08 / 28"></div>
+                <div class="field" style="margin:0"><label>CVC</label><input class="inp" value="123"></div>
+                <div class="field" style="margin:0"><label>ZIP</label><input class="inp" value="07405"></div>
+              </div>
+            </div>
+            <div class="rowbtwn mt">
+              <button class="linebtn" onclick="duesStep(1)">← Back</button>
+              <button class="btn pri" id="payBtn" onclick="payDues()">Pay $660.00</button>
+            </div>
+          </div>
+          <div class="summ">
+            <div class="li"><span>Associate dues — 2026</span><span>$640.00</span></div>
+            <div class="li"><span class="muted">Convenience fee</span><span class="muted">$20.00</span></div>
+            <div class="li total"><span>Total</span><span>$660.00</span></div>
+            <div class="tinynote"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>PCI-compliant · card details never touch the association's servers</div>
+          </div>
+        </div>
+      </div>
+      <div id="dues3" class="hidden">
+        <div class="steps">
+          <div class="s done"><span class="n">✓</span>Your invoice</div><div class="bar fill"></div>
+          <div class="s done"><span class="n">✓</span>Payment</div><div class="bar fill"></div>
+          <div class="s on"><span class="n">3</span>Done</div>
+        </div>
+        <div class="success">
+          <div class="checkwrap"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h1 class="h-lg">You're all set for 2026 🎉</h1>
+          <p class="sub">$660.00 paid · a receipt is on its way to sarah.m@example.com</p>
+          <div class="summ" style="max-width:420px;margin:0 auto;text-align:left">
+            <div class="li"><span class="muted">Confirmation</span><span>LR-2026-0148</span></div>
+            <div class="li"><span class="muted">Method</span><span>Visa ···· 4242</span></div>
+            <div class="li"><span class="muted">Status</span><span class="pill paid">Paid in full</span></div>
+          </div>
+          <div style="margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <button class="btn ghost" onclick="go('m_home')">Back to dashboard</button>
+            <button class="btn dark" onclick="setMode('admin')">See what the treasurer sees →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MEMBER: EVENTS ==================== -->
+    <div class="page" id="m_events">
+      <div class="guide"><div class="gi">i</div><p><b>Replaces cash at the door.</b> Members register and pay online; the system tracks the attendee list and checks people in by QR at the event.</p></div>
+      <div id="ev1">
+        <div class="kicker">What's on</div>
+        <h1 class="h-lg">Lake events</h1>
+        <p class="sub">Register online · members get discounted pricing automatically</p>
+        <div class="evrow" onclick="openEvent()">
+          <div class="evdate"><div class="mo">Aug</div><div class="dy">8</div></div>
+          <div class="info"><h3>Medium Night at the Pavilion</h3><p><span class="tag">Member $40</span><span class="tag">Guest $50</span> · Fri 7:00 PM · 84 going</p></div>
+          <div class="price">$40</div>
+        </div>
+        <div class="evrow" onclick="openEvent()">
+          <div class="evdate"><div class="mo">Aug</div><div class="dy">23</div></div>
+          <div class="info"><h3>Parents' Night Out</h3><p><span class="tag">$50 / couple</span> · Sat 6:30 PM · limited to 40</p></div>
+          <div class="price">$50</div>
+        </div>
+        <div class="evrow" onclick="openEvent()">
+          <div class="evdate"><div class="mo">Sep</div><div class="dy">13</div></div>
+          <div class="info"><h3>Tricky Tray & Basket Raffle</h3><p><span class="tag">Free entry</span><span class="tag">Sheets sold online</span> · Sat 5:00 PM</p></div>
+          <div class="price">Free</div>
+        </div>
+      </div>
+      <!-- example event detail + register -->
+      <div id="ev2" class="hidden">
+        <button class="linebtn mb" onclick="eventStep(1)">← All events</button>
+        <div class="grid c2" style="align-items:start">
+          <div>
+            <div class="kicker">Friday, August 8 · 7:00 PM</div>
+            <h1 class="h-lg">Medium Night at the Pavilion</h1>
+            <p class="sub">Our summer favorite is back. Food, music, and a night on the lake. Members save $10 a ticket — pricing is applied automatically because you're signed in.</p>
+            <div class="card"><h3>Details</h3><p>Lakeside Pavilion · 75 Fayson Lakes Rd · BYO chairs · 84 neighbors already going</p></div>
+          </div>
+          <div class="summ">
+            <h3 style="margin:0 0 14px;font-family:Georgia,serif;color:var(--deep)">Register</h3>
+            <div class="field"><label>Member tickets — $40 each</label>
+              <select class="inp" id="evQty" onchange="evTotal()"><option value="2">2 tickets</option><option value="1">1 ticket</option><option value="3">3 tickets</option><option value="4">4 tickets</option></select>
+            </div>
+            <div class="field"><label>Guest tickets — $50 each</label>
+              <select class="inp" id="evGuest" onchange="evTotal()"><option value="0">0 guests</option><option value="1">1 guest</option><option value="2">2 guests</option></select>
+            </div>
+            <div class="li" style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px dashed var(--line);font-weight:800;color:var(--deep);font-size:17px"><span>Total</span><span id="evSum">$80.00</span></div>
+            <button class="btn pri mt" style="width:100%;justify-content:center" onclick="eventStep(3)">Register & pay →</button>
+          </div>
+        </div>
+      </div>
+      <!-- event ticket -->
+      <div id="ev3" class="hidden">
+        <div class="success" style="padding-top:8px"><div class="checkwrap"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><h1 class="h-lg" style="margin-bottom:20px">You're going! 🎟️</h1></div>
+        <div class="ticket">
+          <div class="top"><div class="kicker">Lake Reality · Admit 2</div><h3>Medium Night at the Pavilion</h3></div>
+          <div class="body">
+            <div class="qr" id="qrSlot"></div>
+            <div class="meta">
+              <div><div class="k">Name</div><div class="val">Sarah Mitchell</div></div>
+              <div><div class="k">When</div><div class="val">Fri Aug 8 · 7:00 PM</div></div>
+              <div><div class="k">Tickets</div><div class="val" id="ticketQty">2 member</div></div>
+              <div><div class="k">Order</div><div class="val">EVT-8842</div></div>
+            </div>
+          </div>
+        </div>
+        <p class="tinynote" style="justify-content:center;margin-top:18px"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>At the door, a volunteer scans this QR — the attendee list checks itself in. No clipboard, no cash box.</p>
+        <div style="text-align:center;margin-top:16px"><button class="btn ghost" onclick="eventStep(1)">Back to events</button></div>
+      </div>
+    </div>
+
+    <!-- ==================== MEMBER: PAVILION RENTAL ==================== -->
+    <div class="page" id="m_pavilion">
+      <div class="guide"><div class="gi">i</div><p><b>Pavilion rental, end to end.</b> Member submits a request → the board approves it online → member pays the fee by card → it's booked. No paper form, no back-and-forth phone tag.</p></div>
+
+      <!-- step 1: request form -->
+      <div id="pav1">
+        <div class="steps">
+          <div class="s on"><span class="n">1</span>Request</div><div class="bar"></div>
+          <div class="s"><span class="n">2</span>Board review</div><div class="bar"></div>
+          <div class="s"><span class="n">3</span>Payment</div><div class="bar"></div>
+          <div class="s"><span class="n">4</span>Booked</div>
+        </div>
+        <h1 class="h-lg">Reserve the Lakeside Pavilion</h1>
+        <p class="sub">Members only · $150 rental + $100 refundable deposit</p>
+        <div class="grid c2" style="align-items:start">
+          <div class="card">
+            <div class="inrow">
+              <div class="field"><label>Requested date</label><input class="inp" type="text" value="Sat, Aug 30 2026"></div>
+              <div class="field"><label>Time</label><input class="inp" value="1:00 – 6:00 PM"></div>
+            </div>
+            <div class="field"><label>Type of gathering</label><select class="inp"><option>Birthday party</option><option>Family reunion</option><option>Graduation</option><option>Other</option></select></div>
+            <div class="field"><label>Expected guests</label><input class="inp" value="35"></div>
+            <label class="chk mb"><input type="checkbox"> I agree to the pavilion rules & clean-up policy</label>
+            <button class="btn pri" style="width:100%;justify-content:center" onclick="pavStep(2)">Submit request →</button>
+          </div>
+          <div class="card">
+            <h3>How it works</h3>
+            <p style="margin-bottom:12px">Your request goes to the board for a quick approval. You're not charged until they say yes — then you pay online and the date is locked to your name.</p>
+            <div style="background:var(--paper2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted)"><b style="color:var(--deep)">Fees:</b> $150 rental · $100 deposit refunded after clean-up review.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- step 2: submitted / pending board -->
+      <div id="pav2" class="hidden">
+        <div class="steps">
+          <div class="s done"><span class="n">✓</span>Request</div><div class="bar fill"></div>
+          <div class="s on"><span class="n">2</span>Board review</div><div class="bar"></div>
+          <div class="s"><span class="n">3</span>Payment</div><div class="bar"></div>
+          <div class="s"><span class="n">4</span>Booked</div>
+        </div>
+        <div class="banner" style="background:#e8eef7;border:1px solid #cdd9ee">
+          <div class="ico" style="background:#cdd9ee;color:#375f96"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div class="txt"><b>Request submitted — awaiting board approval</b><span>Sat, Aug 30 · 1:00–6:00 PM · Birthday party · 35 guests</span></div>
+          <span class="pill info">Pending</span>
+        </div>
+        <div class="card" style="max-width:560px">
+          <h3>What happens now</h3>
+          <p style="margin-bottom:16px">A board member reviews your request — usually within a day. You'll get an email as soon as it's approved, with a link to pay. Nothing is charged yet.</p>
+          <p class="tinynote" style="margin:0"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>For this demo, jump ahead and see the board approve it:</p>
+          <button class="btn gold mt" onclick="pavStep(3)">▶ Preview: board approves the request</button>
+        </div>
+      </div>
+
+      <!-- step 3: approved, pay -->
+      <div id="pav3" class="hidden">
+        <div class="steps">
+          <div class="s done"><span class="n">✓</span>Request</div><div class="bar fill"></div>
+          <div class="s done"><span class="n">✓</span>Board review</div><div class="bar fill"></div>
+          <div class="s on"><span class="n">3</span>Payment</div><div class="bar"></div>
+          <div class="s"><span class="n">4</span>Booked</div>
+        </div>
+        <div class="banner good">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="txt"><b>Approved by the board 🎉</b><span>Approved by T. Bennett (Trustee) · pay to lock in your date</span></div>
+          <span class="pill paid">Approved</span>
+        </div>
+        <div class="grid c2" style="align-items:start">
+          <div class="summ">
+            <div class="li"><span>Pavilion rental — Sat Aug 30</span><span>$150.00</span></div>
+            <div class="li"><span>Refundable clean-up deposit</span><span>$100.00</span></div>
+            <div class="li"><span class="muted">Card convenience fee</span><span class="muted">$7.55</span></div>
+            <div class="li total"><span>Total today</span><span>$257.55</span></div>
+            <button class="btn pri mt" id="pavPayBtn" style="width:100%;justify-content:center" onclick="pavPay()">Pay & confirm booking →</button>
+          </div>
+          <div class="card"><h3>Almost booked</h3><p>The $100 deposit comes back to your card after a quick clean-up review. Your date is held while you pay.</p></div>
+        </div>
+      </div>
+
+      <!-- step 4: booked -->
+      <div id="pav4" class="hidden">
+        <div class="steps">
+          <div class="s done"><span class="n">✓</span>Request</div><div class="bar fill"></div>
+          <div class="s done"><span class="n">✓</span>Board review</div><div class="bar fill"></div>
+          <div class="s done"><span class="n">✓</span>Payment</div><div class="bar fill"></div>
+          <div class="s on"><span class="n">4</span>Booked</div>
+        </div>
+        <div class="success">
+          <div class="checkwrap"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h1 class="h-lg">The pavilion is yours 🏝️</h1>
+          <p class="sub">Sat, Aug 30 · 1:00–6:00 PM · confirmation RENT-3391 emailed to you</p>
+          <div class="summ" style="max-width:420px;margin:0 auto;text-align:left">
+            <div class="li"><span class="muted">Date</span><span>Sat, Aug 30 · 1–6 PM</span></div>
+            <div class="li"><span class="muted">Paid</span><span>$257.55 · Visa ···· 4242</span></div>
+            <div class="li"><span class="muted">Status</span><span class="pill paid">Confirmed</span></div>
+          </div>
+          <button class="btn ghost mt" onclick="pavStep(1)">Back to start</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MEMBER: ACCOUNT ==================== -->
+    <div class="page" id="m_account">
+      <div class="guide"><div class="gi">i</div><p><b>Self-service.</b> Members update their own address, phone, and household — and see their full payment history. Every one of these edits is a request a volunteer used to field by hand.</p></div>
+      <div class="kicker">Your profile</div>
+      <h1 class="h-lg">My Account</h1>
+      <p class="sub">Keep your info current — changes save to the roster instantly.</p>
+      <div class="grid c2" style="align-items:start">
+        <div class="card">
+          <h3 class="mb">Contact details</h3>
+          <div class="field"><label>Full name</label><input class="inp" value="Sarah Mitchell"></div>
+          <div class="inrow">
+            <div class="field"><label>Email</label><input class="inp" value="sarah.m@example.com"></div>
+            <div class="field"><label>Phone</label><input class="inp" value="(973) 555-0142"></div>
+          </div>
+          <div class="field"><label>Lake address</label><input class="inp" value="18 Lakeshore Dr, Kinnelon, NJ 07405"></div>
+          <button class="btn pri" onclick="toast('Profile saved to the roster')">Save changes</button>
+        </div>
+        <div>
+          <div class="card mb">
+            <h3 class="mb">Payment history</h3>
+            <table class="tbl" style="box-shadow:none;border:1px solid var(--line)">
+              <tr><th>Date</th><th>Item</th><th>Amount</th><th></th></tr>
+              <tr><td>Jul 2025</td><td>2025 Season dues</td><td>$640.00</td><td><span class="pill paid">Paid</span></td></tr>
+              <tr><td>Aug 2024</td><td>Medium Night ×2</td><td>$80.00</td><td><span class="pill paid">Paid</span></td></tr>
+              <tr><td>Jun 2024</td><td>2024 Season dues</td><td>$640.00</td><td><span class="pill paid">Paid</span></td></tr>
+            </table>
+          </div>
+          <div class="card"><h3>Documents</h3><p>Download receipts for taxes, view the By-Laws, and read the latest Dam Reconstruction updates — all in one place.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MEMBER: MEDIA (Instagram) ==================== -->
+    <div class="page" id="m_media">
+      <div class="guide"><div class="gi">i</div><p><b>Your Instagram, right on the site.</b> The finished site pulls the latest posts from <b>@lake_reality</b> automatically — so the homepage always shows fresh lake photos with zero extra work.</p></div>
+      <div class="kicker">Community</div>
+      <h1 class="h-lg">Lake Reality Media</h1>
+      <p class="sub">Straight from the lake — our latest moments on Instagram.</p>
+      <div class="igprofile">
+        <div class="igring"><div class="inner"><div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 15c2 0 2 1.5 4 1.5S9 15 11 15s2 1.5 4 1.5S17 15 19 15" stroke="#2A9D8F" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="7.5" r="3" fill="#E9C46A"/></svg></div></div></div>
+        <div style="flex:1;min-width:180px">
+          <div style="font-weight:800;color:var(--deep);font-size:17px">@lake_reality</div>
+          <div class="muted" style="font-size:13.5px">Lake Reality HOA · Fayson Lakes, Kinnelon NJ</div>
+        </div>
+        <a class="btn pri sm" href="https://www.instagram.com/lake_reality/" target="_blank" rel="noopener">Follow on Instagram ↗</a>
+      </div>
+      <div class="iggrid" id="igGridMember"></div>
+      <p class="tinynote"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="17" cy="7" r="1"/></svg>Placeholder photos shown — on the finished site this grid is the live @lake_reality feed, refreshing itself whenever you post.</p>
+    </div>
+
+    <!-- ==================== ADMIN: DASHBOARD ==================== -->
+    <div class="page" id="a_dash">
+      <div class="guide"><div class="gi">i</div><p><b>This is the volunteer-workload fix.</b> The whole membership at a glance — who's paid, who owes, what's coming in — updated automatically as members pay. Replaces spreadsheets, sticky notes, and chasing checks.</p></div>
+      <div class="rowbtwn">
+        <div><div class="kicker">Board & Treasurer</div><h1 class="h-lg">Association Dashboard</h1></div>
+        <span class="pill paid" style="font-size:12.5px">● Live · updates automatically</span>
+      </div>
+      <p class="sub">2026 season · as of today</p>
+
+      <div class="grid c4 mb">
+        <div class="kpi"><div class="k">Dues billed</div><div class="v">$82,275</div><div class="d">135 paying members</div></div>
+        <div class="kpi"><div class="k">Collected</div><div class="v">$79,171</div><div class="d up">96% · +$660 today</div></div>
+        <div class="kpi"><div class="k">Outstanding</div><div class="v">$3,104</div><div class="d">23 open invoices</div></div>
+        <div class="kpi"><div class="k">New applications</div><div class="v">9</div><div class="d">awaiting board approval</div></div>
+      </div>
+
+      <!-- charts row -->
+      <div class="grid c3 mb" style="align-items:stretch">
+        <!-- donut: members by tier -->
+        <div class="chartcard">
+          <h3>Members by tier</h3>
+          <p class="cap">147 members · 135 dues-paying</p>
+          <div style="display:flex;align-items:center;gap:16px">
+            <svg viewBox="0 0 140 140" width="128" height="128" style="flex:0 0 auto">
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#EAF1F2" stroke-width="20"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#2A9D8F" stroke-width="20" stroke-dasharray="239.6 327" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#3B6FA0" stroke-width="20" stroke-dasharray="50.8 327" transform="rotate(174 70 70)"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#E9C46A" stroke-width="20" stroke-dasharray="36.3 327" transform="rotate(230 70 70)"/>
+              <text x="70" y="66" text-anchor="middle" font-family="Georgia" font-size="26" font-weight="700" fill="#0B3B49">135</text>
+              <text x="70" y="84" text-anchor="middle" font-size="10" fill="#5B7A82" letter-spacing="1">PAYING</text>
+            </svg>
+            <div class="legend">
+              <div class="li"><span class="sw" style="background:#2A9D8F"></span><span><b>99</b> Associate</span></div>
+              <div class="li"><span class="sw" style="background:#3B6FA0"></span><span><b>21</b> Resident</span></div>
+              <div class="li"><span class="sw" style="background:#E9C46A"></span><span><b>15</b> Social</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- area: collection through the season -->
+        <div class="chartcard">
+          <h3>Dues collected this season</h3>
+          <p class="cap">Automated invoicing → 96% collected by July</p>
+          <svg viewBox="0 0 300 150" width="100%" height="140" preserveAspectRatio="none">
+            <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A9D8F" stop-opacity=".35"/><stop offset="1" stop-color="#2A9D8F" stop-opacity="0"/></linearGradient></defs>
+            <line x1="20" y1="120" x2="290" y2="120" stroke="#D3E2E6" stroke-width="1"/>
+            <path d="M20 101 L110 62 L210 34 L290 19 L290 120 L20 120 Z" fill="url(#ag)"/>
+            <path d="M20 101 L110 62 L210 34 L290 19" fill="none" stroke="#2A9D8F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="101" r="4" fill="#2A9D8F"/><circle cx="110" cy="62" r="4" fill="#2A9D8F"/><circle cx="210" cy="34" r="4" fill="#2A9D8F"/><circle cx="290" cy="19" r="5" fill="#0B3B49"/>
+            <text x="285" y="14" text-anchor="end" font-size="11" font-weight="700" fill="#0B3B49">96%</text>
+            <text x="20" y="135" font-size="10" fill="#5B7A82">Apr</text><text x="105" y="135" font-size="10" fill="#5B7A82">May</text><text x="200" y="135" font-size="10" fill="#5B7A82">Jun</text><text x="278" y="135" font-size="10" fill="#5B7A82">Jul</text>
+          </svg>
+        </div>
+        <!-- bars: dues revenue by tier -->
+        <div class="chartcard">
+          <h3>Dues revenue by tier</h3>
+          <p class="cap">Revenue rides on Associate dues</p>
+          <div class="hbar" style="margin-top:18px">
+            <div class="row"><span>Associate</span><div class="track"><div class="fill" style="width:100%;background:#2A9D8F"></div></div><span class="amt">$63.4k</span></div>
+            <div class="row"><span>Resident</span><div class="track"><div class="fill" style="width:21%;background:#3B6FA0"></div></div><span class="amt">$13.4k</span></div>
+            <div class="row"><span>Social</span><div class="track"><div class="fill" style="width:9%;background:#E9C46A"></div></div><span class="amt">$5.5k</span></div>
+          </div>
+          <p class="tinynote" style="margin-top:16px"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 3 2 20h20L12 3z"/></svg>73% of dues come from Associate members.</p>
+        </div>
+      </div>
+
+      <div class="grid c2" style="align-items:start">
+        <div class="card">
+          <div class="rowbtwn mb"><h3 style="margin:0">Collection progress</h3><span class="muted" style="font-size:13px">96% collected</span></div>
+          <div style="height:14px;background:var(--paper2);border-radius:999px;overflow:hidden"><div style="height:100%;width:96%;background:linear-gradient(90deg,var(--teal),var(--teal-lt));border-radius:999px"></div></div>
+          <p class="mt" style="font-size:13.5px;color:var(--muted);margin:0">Automated invoicing recovered <b style="color:var(--deep)">$3,104</b> that used to sit uncollected each year — the system pays for itself.</p>
+          <div class="mt" style="display:flex;align-items:center;gap:10px;background:var(--paper2);padding:12px 14px;border-radius:10px">
+            <label class="chk"><input type="checkbox" checked> Auto-invoice & reminders</label>
+            <span class="muted" style="font-size:12.5px;margin-left:auto">Runs every spring, hands-free</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="mb">Recent activity</h3>
+          <div style="display:grid;gap:12px">
+            <div style="display:flex;gap:11px;align-items:center;font-size:13.5px"><span class="pill paid" style="flex:0 0 auto">Paid</span><span>Sarah Mitchell paid <b>$660.00</b> — Associate dues</span><span class="muted" style="margin-left:auto">just now</span></div>
+            <div style="display:flex;gap:11px;align-items:center;font-size:13.5px"><span class="pill paid" style="flex:0 0 auto">Paid</span><span>M. Alvarez registered for Medium Night ×2</span><span class="muted" style="margin-left:auto">12m</span></div>
+            <div style="display:flex;gap:11px;align-items:center;font-size:13.5px"><span class="pill info" style="flex:0 0 auto">New</span><span>Pavilion request from J. Whitfield — Aug 30</span><span class="muted" style="margin-left:auto">40m</span></div>
+            <div style="display:flex;gap:11px;align-items:center;font-size:13.5px"><span class="pill open" style="flex:0 0 auto">Sent</span><span>Reminder emailed to 23 unpaid members</span><span class="muted" style="margin-left:auto">1h</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ADMIN: MEMBERS ==================== -->
+    <div class="page" id="a_members">
+      <div class="guide"><div class="gi">i</div><p><b>The whole roster, searchable.</b> 147 members across three tiers — click any member to open their full record. No more digging through a spreadsheet or a printed binder.</p></div>
+      <!-- list -->
+      <div id="mem1">
+        <div class="rowbtwn">
+          <div><div class="kicker">Roster</div><h1 class="h-lg">Members</h1></div>
+          <div style="display:flex;gap:10px"><button class="btn ghost sm" onclick="toast('Roster exported to CSV')">Export CSV</button><button class="btn dark sm" onclick="go('a_email')">Email selected</button></div>
+        </div>
+        <p class="sub">147 members · Resident 21 · Associate 99 · Social 15 · <span style="color:var(--warn)">9 applications pending</span></p>
+        <table class="tbl">
+          <tr><th>Member</th><th>Tier</th><th>Household</th><th>2026 dues</th><th>Status</th></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>Sarah Mitchell</b><div class="muted" style="font-size:12px">sarah.m@example.com</div></td><td>Associate</td><td>2 adults</td><td>$660</td><td><span class="pill paid">Paid</span></td></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>Robert Chen</b><div class="muted" style="font-size:12px">rchen@example.com</div></td><td>Resident</td><td>4</td><td>$660</td><td><span class="pill paid">Paid</span></td></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>Maria Alvarez</b><div class="muted" style="font-size:12px">malvarez@example.com</div></td><td>Associate</td><td>3</td><td>$660</td><td><span class="pill open">Invoice open</span></td></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>James Whitfield</b><div class="muted" style="font-size:12px">jwhit@example.com</div></td><td>Social</td><td>2</td><td>$377</td><td><span class="pill paid">Paid</span></td></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>Dana Brooks</b><div class="muted" style="font-size:12px">dbrooks@example.com</div></td><td>Associate</td><td>2</td><td>$660</td><td><span class="pill over">Past due</span></td></tr>
+          <tr class="clickable" onclick="openMember()"><td><b>Thomas Nguyen</b><div class="muted" style="font-size:12px">tnguyen@example.com</div></td><td>Social</td><td>1</td><td>$377</td><td><span class="pill paid">Paid</span></td></tr>
+        </table>
+      </div>
+      <!-- member detail -->
+      <div id="mem2" class="hidden">
+        <button class="linebtn mb" onclick="memberStep(1)">← All members</button>
+        <div class="rowbtwn">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div class="avatar" style="width:56px;height:56px;font-size:20px">SM</div>
+            <div><h1 class="h-lg" style="margin:0">Sarah Mitchell</h1><p style="margin:2px 0 0;color:var(--muted)">Associate Member · since 2014 · <span class="pill paid">In good standing</span></p></div>
+          </div>
+          <div style="display:flex;gap:10px"><button class="btn ghost sm" onclick="toast('Opening email composer')">Email member</button><button class="btn dark sm" onclick="toast('Marked as paid')">Record payment</button></div>
+        </div>
+        <div class="grid c3 mt" style="align-items:start">
+          <div class="card"><h3 class="mb">Contact</h3><p style="line-height:1.9"><b style="color:var(--deep)">Email</b><br>sarah.m@example.com<br><b style="color:var(--deep)">Phone</b><br>(973) 555-0142<br><b style="color:var(--deep)">Address</b><br>18 Lakeshore Dr<br>Kinnelon, NJ 07405</p></div>
+          <div class="card"><h3 class="mb">Membership</h3><p style="line-height:1.9"><b style="color:var(--deep)">Tier</b><br>Associate — $660/yr<br><b style="color:var(--deep)">Household</b><br>2 adults<br><b style="color:var(--deep)">Auto-renew</b><br>On<br><b style="color:var(--deep)">Lake access</b><br>Full</p></div>
+          <div class="card"><h3 class="mb">2026 status</h3>
+            <div style="text-align:center;padding:10px 0"><div style="font-family:Georgia,serif;font-size:34px;color:var(--teal-dk)">$660</div><span class="pill paid">Paid in full</span><p class="muted" style="font-size:12.5px;margin-top:8px">Paid Jul 13 · Visa ···· 4242</p></div>
+          </div>
+        </div>
+        <div class="card mt"><h3 class="mb">Payment & activity history</h3>
+          <table class="tbl" style="box-shadow:none;border:1px solid var(--line)">
+            <tr><th>Date</th><th>Item</th><th>Amount</th><th>Method</th><th>Status</th></tr>
+            <tr><td>Jul 2026</td><td>2026 Season dues</td><td>$660.00</td><td>Visa ···· 4242</td><td><span class="pill paid">Paid</span></td></tr>
+            <tr><td>Jul 2025</td><td>2025 Season dues</td><td>$640.00</td><td>Check</td><td><span class="pill paid">Paid</span></td></tr>
+            <tr><td>Aug 2024</td><td>Medium Night ×2</td><td>$80.00</td><td>Visa ···· 4242</td><td><span class="pill paid">Paid</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ADMIN: EVENTS SETUP ==================== -->
+    <div class="page" id="a_events">
+      <div class="guide"><div class="gi">i</div><p><b>Here's how an event gets set up.</b> Fill in the details, switch on online ticketing, and optionally invite every member — the registration page, payments, and attendee list all build themselves.</p></div>
+      <div class="rowbtwn">
+        <div><div class="kicker">Event management</div><h1 class="h-lg">Events</h1></div>
+        <button class="btn pri sm" id="createToggle" onclick="toggleCreate()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Create event</button>
+      </div>
+      <p class="sub">3 events live this season · 168 tickets sold · $6,420 collected</p>
+
+      <!-- create form (collapsible) -->
+      <div id="createForm" class="card mb hidden">
+        <h3 class="mb">New event</h3>
+        <div class="inrow">
+          <div class="field"><label>Event name</label><input class="inp" value="Fall Fishing Derby"></div>
+          <div class="field"><label>Date</label><input class="inp" value="Sat, Oct 4 2026"></div>
+          <div class="field"><label>Start time</label><input class="inp" value="8:00 AM"></div>
+        </div>
+        <div class="inrow">
+          <div class="field"><label>Member price</label><input class="inp" value="$15"></div>
+          <div class="field"><label>Guest price</label><input class="inp" value="$25"></div>
+          <div class="field"><label>Capacity</label><input class="inp" value="120"></div>
+        </div>
+        <div class="grid c2" style="gap:10px;margin:6px 0 16px">
+          <label class="chk" style="background:var(--paper2);padding:12px 14px;border-radius:10px"><input type="checkbox" checked> Sell tickets online (Stripe)</label>
+          <label class="chk" style="background:var(--paper2);padding:12px 14px;border-radius:10px"><input type="checkbox" checked> Email an invite to all members</label>
+        </div>
+        <div style="display:flex;gap:10px"><button class="btn pri" onclick="createEvent()">Publish event</button><button class="btn ghost" onclick="toggleCreate()">Cancel</button></div>
+      </div>
+
+      <table class="tbl" id="eventTbl">
+        <tr><th>Event</th><th>Date</th><th>Pricing</th><th>Sold</th><th>Revenue</th><th>Status</th></tr>
+        <tr><td><b>Medium Night at the Pavilion</b></td><td>Aug 8</td><td>$40 / $50</td><td>84 / 150</td><td>$3,640</td><td><span class="pill paid">On sale</span></td></tr>
+        <tr><td><b>Parents' Night Out</b></td><td>Aug 23</td><td>$50 couple</td><td>31 / 40</td><td>$1,550</td><td><span class="pill paid">On sale</span></td></tr>
+        <tr><td><b>Tricky Tray & Basket Raffle</b></td><td>Sep 13</td><td>Free + sheets</td><td>53 RSVP</td><td>$1,230</td><td><span class="pill open">Draft sheets</span></td></tr>
+      </table>
+      <p class="tinynote"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Every ticket sold updates the attendee list and the dashboard automatically — the day-of check-in list builds itself.</p>
+    </div>
+
+    <!-- ==================== ADMIN: INVOICING ==================== -->
+    <div class="page" id="a_invoices">
+      <div class="guide"><div class="gi">i</div><p><b>Chasing payments, automated.</b> The system finds everyone who hasn't paid and sends a polite reminder — one click, or fully hands-free on a schedule. The single biggest volunteer time-sink, gone.</p></div>
+      <div class="rowbtwn">
+        <div><div class="kicker">Accounts receivable</div><h1 class="h-lg">Outstanding invoices</h1></div>
+        <button class="btn gold" id="remindBtn" onclick="sendReminders()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Send reminder to all 23</button>
+      </div>
+      <p class="sub" id="invSub">$3,104.31 across 23 members · reminders last sent 8 days ago</p>
+      <table class="tbl" id="invTbl">
+        <tr><th>Member</th><th>Invoice</th><th>Amount</th><th>Age</th><th>Status</th></tr>
+        <tr data-inv><td><b>Maria Alvarez</b></td><td>LR-2026-0132</td><td>$660.00</td><td>14 days</td><td><span class="pill open">Reminder due</span></td></tr>
+        <tr data-inv><td><b>Dana Brooks</b></td><td>LR-2026-0119</td><td>$660.00</td><td>31 days</td><td><span class="pill over">Past due</span></td></tr>
+        <tr data-inv><td><b>Kevin Park</b></td><td>LR-2026-0140</td><td>$377.00</td><td>9 days</td><td><span class="pill open">Reminder due</span></td></tr>
+        <tr data-inv><td><b>Lisa Romano</b></td><td>LR-2026-0127</td><td>$660.00</td><td>21 days</td><td><span class="pill open">Reminder due</span></td></tr>
+        <tr data-inv><td><b>+ 19 more</b></td><td class="muted">auto-generated</td><td class="muted">…</td><td class="muted">…</td><td><span class="pill open">Reminder due</span></td></tr>
+      </table>
+      <p class="tinynote"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 3 2 20h20L12 3z"/></svg>Today this is a volunteer cross-checking the bank statement against a list. Here it's one button — or nobody at all.</p>
+    </div>
+
+    <!-- ==================== ADMIN: EMAIL ==================== -->
+    <div class="page" id="a_email">
+      <div class="guide"><div class="gi">i</div><p><b>Email your members in minutes.</b> Newsletters, event invites, dam-project updates — to the whole lake or a targeted group. No more copy-pasting addresses: pick exactly who hears from you and hit send.</p></div>
+      <div id="em1">
+        <div class="kicker">Broadcast email</div>
+        <h1 class="h-lg">Email your members</h1>
+        <p class="sub">Sent from noreply@lakereality.org · delivery tracked</p>
+        <div class="grid c2" style="align-items:start">
+          <div class="card">
+            <div class="field"><label>Send to</label>
+              <select class="inp" id="emAud" onchange="emAudChange()">
+                <option value="all members">All members</option>
+                <option value="Resident members">Resident members</option>
+                <option value="Associate members">Associate members</option>
+                <option value="Social members">Social members</option>
+                <option value="members who are past due">Members past due on payment</option>
+                <option value="event attendees">Event attendees</option>
+              </select>
+              <p class="tinynote"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filter by membership type, or reach only members who are past due.</p>
+            </div>
+            <div class="field"><label>Subject</label><input class="inp" value="Medium Night is back — Fri Aug 8 🎉"></div>
+            <div class="field"><label>Message</label><textarea class="inp" rows="5" style="resize:none">Neighbors — our summer favorite returns! Members save $10 a ticket. Register right from your member portal in two clicks.</textarea></div>
+            <button class="btn pri" id="sendEmailBtn" onclick="sendEmail()">Send to all members</button>
+          </div>
+          <div>
+            <div class="card mb"><h3 class="mb">Reach the right people</h3><p>Send to <b style="color:var(--deep)">everyone</b>, or narrow it down — a single membership tier, event attendees, or just the members who are <b style="color:var(--deep)">past due</b> on their dues. Three fields and a button, and the right neighbors hear from you.</p></div>
+            <div class="card"><h3 class="mb">Recent sends</h3>
+              <div style="display:grid;gap:10px;font-size:13.5px">
+                <div class="rowbtwn"><span>Spring dues reminder</span><span class="pill open">Past-due members</span></div>
+                <div class="rowbtwn"><span>Dam project update</span><span class="pill paid">All members</span></div>
+                <div class="rowbtwn"><span>Pavilion rental openings</span><span class="pill info">Associate members</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="em2" class="hidden">
+        <div class="success">
+          <div class="checkwrap"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h1 class="h-lg" id="emSentTitle">Sent to all members ✉️</h1>
+          <p class="sub">Delivered in seconds · opens and clicks will show up here</p>
+          <button class="btn ghost" onclick="document.getElementById('em2').classList.add('hidden');document.getElementById('em1').classList.remove('hidden')">Compose another</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ADMIN: MEDIA ==================== -->
+    <div class="page" id="a_media">
+      <div class="guide"><div class="gi">i</div><p><b>Add photos in seconds.</b> Drop images straight into the site gallery, and keep the Instagram feed connected so new posts appear on the homepage on their own.</p></div>
+      <div class="rowbtwn">
+        <div><div class="kicker">Content</div><h1 class="h-lg">Media & photos</h1></div>
+        <button class="btn pri sm" onclick="toast('Photos uploaded to the gallery')"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Upload photos</button>
+      </div>
+      <p class="sub">Add your own photos to the site gallery, or let it sync from Instagram.</p>
+      <div class="grid c2 mb" style="align-items:start">
+        <div class="dropzone" onclick="toast('Photos added to the gallery')">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>
+          <div><b>Drag photos here</b> or click to browse</div>
+          <div class="muted" style="font-size:12.5px;margin-top:5px">JPG or PNG · added to the gallery instantly</div>
+        </div>
+        <div class="card">
+          <div class="rowbtwn mb"><h3 style="margin:0">Instagram connection</h3><span class="pill paid">Connected</span></div>
+          <p style="margin-bottom:14px"><b style="color:var(--deep)">@lake_reality</b> is linked. New posts flow onto the site automatically — no double-posting.</p>
+          <label class="chk" style="background:var(--paper2);padding:12px 14px;border-radius:10px"><input type="checkbox" checked> Auto-sync latest posts to the homepage</label>
+        </div>
+      </div>
+      <h3 style="color:var(--deep);margin:0 0 12px">Current gallery</h3>
+      <div class="iggrid" id="igGridAdmin"></div>
+    </div>
+
+  </div><!-- /canvas -->
+  </div><!-- /appArea -->
+
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg">Saved</span></div>
+</div><!-- /frame -->
+
+<script>
+/* ---------- state ---------- */
+var mode='member';
+var session={member:false, admin:false};
+
+function startTour(){ document.getElementById('intro').classList.add('hidden'); }
+
+/* ---------- auth ---------- */
+function showAuth(id){
+  document.getElementById('appArea').classList.add('hidden');
+  document.getElementById('authArea').classList.remove('hidden');
+  document.querySelectorAll('.authpane').forEach(function(p){p.classList.remove('show')});
+  var el=document.getElementById(id); if(el) el.classList.add('show');
+  // reset signup sub-state when entering signup fresh
+  if(id==='au_member_signup'){ document.getElementById('signupForm').classList.remove('hidden'); document.getElementById('signupDone').classList.add('hidden'); }
+  // address bar
+  var m = id.indexOf('member')>-1;
+  document.getElementById('addrPath').innerHTML = '<b>lakereality.org</b>/' + (m ? (id.indexOf('signup')>-1?'join':'login') : 'wp-login');
+}
+function login(which){
+  session[which]=true;
+  showApp(which);
+}
+function signOut(){
+  session[mode]=false;
+  showAuth(mode==='member' ? 'au_member_login' : 'au_admin_login');
+}
+function submitSignup(){
+  document.getElementById('signupForm').classList.add('hidden');
+  document.getElementById('signupDone').classList.remove('hidden');
+}
+
+/* ---------- app show / mode ---------- */
+function showApp(which){
+  mode=which;
+  document.getElementById('authArea').classList.add('hidden');
+  document.getElementById('appArea').classList.remove('hidden');
+  var member = which==='member';
+  document.getElementById('navMember').classList.toggle('hidden',!member);
+  document.getElementById('navAdmin').classList.toggle('hidden',member);
+  document.getElementById('addrPath').innerHTML = member ? '<b>lakereality.org</b>/members' : '<b>lakereality.org</b>/wp-admin';
+  document.getElementById('whoName').textContent = member ? 'Sarah Mitchell' : 'Treasurer · Board';
+  document.getElementById('whoAv').textContent = member ? 'SM' : 'TB';
+  go(member ? 'm_home' : 'a_dash');
+}
+function setMode(which){
+  mode=which;
+  document.getElementById('tgMember').classList.toggle('on',which==='member');
+  document.getElementById('tgAdmin').classList.toggle('on',which==='admin');
+  if(session[which]){ showApp(which); }
+  else { showAuth(which==='member' ? 'au_member_login' : 'au_admin_login'); }
+}
+
+/* ---------- page nav ---------- */
+function go(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show')});
+  var el=document.getElementById(id); if(el) el.classList.add('show');
+  var bar=document.querySelector('.nav:not(.hidden)');
+  if(bar){ Array.prototype.forEach.call(bar.querySelectorAll('button'),function(b){
+    b.classList.toggle('active', b.getAttribute('data-page')===id);
+  }); }
+  // reset sub-flows on fresh entry
+  if(id==='m_dues') duesStep(1);
+  if(id==='m_events') eventStep(1);
+  if(id==='m_pavilion') pavStep(1);
+  if(id==='a_members') memberStep(1);
+}
+
+/* ---------- dues ---------- */
+function duesStep(n){ ['dues1','dues2','dues3'].forEach(function(x,i){document.getElementById(x).classList.toggle('hidden',(i+1)!==n)}); }
+function payDues(){ var b=document.getElementById('payBtn'); b.disabled=true; b.textContent='Processing…';
+  setTimeout(function(){ duesStep(3); b.disabled=false; b.textContent='Pay $660.00'; },900); }
+
+/* ---------- events (member) ---------- */
+function eventStep(n){ ['ev1','ev2','ev3'].forEach(function(x,i){document.getElementById(x).classList.toggle('hidden',(i+1)!==n)}); if(n===3) drawQR(); }
+function openEvent(){ eventStep(2); evTotal(); }
+function evTotal(){ var m=+document.getElementById('evQty').value, g=+document.getElementById('evGuest').value; var t=m*40+g*50;
+  document.getElementById('evSum').textContent='$'+t.toFixed(2);
+  document.getElementById('ticketQty').textContent=m+' member'+(g?' · '+g+' guest':''); }
+function drawQR(){
+  var n=13, cell=104/n, svg='<svg viewBox="0 0 104 104" width="104" height="104" xmlns="http://www.w3.org/2000/svg">';
+  var seed=7; function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return (seed>>16)&1; }
+  for(var y=0;y<n;y++){for(var x=0;x<n;x++){
+    var finder=((x<4&&y<4)||(x>n-5&&y<4)||(x<4&&y>n-5));
+    var on=finder?edgeOrCenter(x,y,n):rnd();
+    if(on) svg+='<rect x="'+(x*cell).toFixed(1)+'" y="'+(y*cell).toFixed(1)+'" width="'+cell.toFixed(1)+'" height="'+cell.toFixed(1)+'" fill="#0B3B49"/>';
+  }} svg+='</svg>'; document.getElementById('qrSlot').innerHTML=svg;
+}
+function edgeOrCenter(x,y,n){
+  function f(ox,oy){ var lx=x-ox,ly=y-oy; if(lx<0||ly<0||lx>3||ly>3) return -1;
+    var edge=(lx===0||lx===3||ly===0||ly===3); var ctr=(lx>=1&&lx<=2&&ly>=1&&ly<=2); return (edge||ctr)?1:0; }
+  var a=f(0,0); if(a>=0)return a; var b=f(n-4,0); if(b>=0)return b; var c=f(0,n-4); if(c>=0)return c; return 0;
+}
+
+/* ---------- pavilion ---------- */
+function pavStep(n){ ['pav1','pav2','pav3','pav4'].forEach(function(x,i){document.getElementById(x).classList.toggle('hidden',(i+1)!==n)}); }
+function pavPay(){ var b=document.getElementById('pavPayBtn'); b.disabled=true; b.textContent='Processing…';
+  setTimeout(function(){ pavStep(4); b.disabled=false; b.textContent='Pay & confirm booking →'; },900); }
+
+/* ---------- admin: members ---------- */
+function memberStep(n){ ['mem1','mem2'].forEach(function(x,i){document.getElementById(x).classList.toggle('hidden',(i+1)!==n)}); }
+function openMember(){ memberStep(2); }
+
+/* ---------- admin: events create ---------- */
+function toggleCreate(){ document.getElementById('createForm').classList.toggle('hidden'); }
+function createEvent(){
+  var tbl=document.getElementById('eventTbl');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td><b>Fall Fishing Derby</b></td><td>Oct 4</td><td>$15 / $25</td><td>0 / 120</td><td>$0</td><td><span class="pill paid">On sale</span></td>';
+  tbl.appendChild(tr);
+  toggleCreate();
+  toast('Event published · invite sent to all members');
+}
+
+/* ---------- admin: reminders ---------- */
+function sendReminders(){ var b=document.getElementById('remindBtn'); b.disabled=true; b.textContent='Sending…';
+  setTimeout(function(){
+    document.querySelectorAll('#invTbl tr[data-inv] td:last-child').forEach(function(td){ td.innerHTML='<span class="pill paid">Reminder sent</span>'; });
+    b.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Reminders sent';
+    b.classList.remove('gold'); b.classList.add('pri');
+    document.getElementById('invSub').textContent='23 reminders just sent · members can pay by card straight from the email';
+    toast('23 payment reminders sent');
+  },850);
+}
+
+/* ---------- admin: email ---------- */
+function emAudChange(){ document.getElementById('sendEmailBtn').textContent='Send to '+document.getElementById('emAud').value; }
+function sendEmail(){ var b=document.getElementById('sendEmailBtn'); var a=document.getElementById('emAud').value; b.disabled=true; b.textContent='Sending…';
+  setTimeout(function(){
+    document.getElementById('emSentTitle').textContent='Sent to '+a+' ✉️';
+    document.getElementById('em1').classList.add('hidden'); document.getElementById('em2').classList.remove('hidden');
+    b.disabled=false; b.textContent='Send to '+a; },800);
+}
+
+/* ---------- OTP auto-advance ---------- */
+document.querySelectorAll('.otp[data-otp]').forEach(function(box){
+  var inputs=box.querySelectorAll('input');
+  inputs.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'').slice(0,1);
+      if(this.value && inputs[i+1]) inputs[i+1].focus();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace' && !this.value && inputs[i-1]) inputs[i-1].focus();
+    });
+  });
+});
+
+/* ---------- media tiles (Instagram-style placeholders) ---------- */
+function makeTiles(id){
+  var host=document.getElementById(id); if(!host||host.dataset.filled) return; host.dataset.filled=1;
+  var pal=[['#FBBF77','#E8804A'],['#7FC8E8','#2E7DA6'],['#9AD0A5','#3E8E5A'],['#F6C1A0','#D9743F'],['#8EA9E8','#3B4E9E'],['#F3B7C9','#C24D77']];
+  var caps=['#sunsetpaddle','#faysonlakes','#lakelife','#fallcolors','#regattaday','#beachclub'];
+  var html='';
+  for(var i=0;i<6;i++){
+    html+='<div class="mediatile" onclick="window.open(\'https://www.instagram.com/lake_reality/\',\'_blank\',\'noopener\')">'
+      +'<svg class="scene" viewBox="0 0 100 100" preserveAspectRatio="none">'
+      +'<defs><linearGradient id="g'+id+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+pal[i][0]+'"/><stop offset="1" stop-color="'+pal[i][1]+'"/></linearGradient></defs>'
+      +'<rect width="100" height="100" fill="url(#g'+id+i+')"/>'
+      +'<circle cx="'+(22+i*9)+'" cy="30" r="9" fill="#fff" opacity=".85"/>'
+      +'<path d="M0 64 Q25 56 50 64 T100 64 V100 H0 Z" fill="#ffffff" opacity=".16"/>'
+      +'<path d="M0 74 Q25 68 50 74 T100 74 V100 H0 Z" fill="#0B3B49" opacity=".22"/>'
+      +'</svg>'
+      +'<span class="cap">'+caps[i]+'</span>'
+      +'<div class="ov"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 9 3 5 6.5 5 9 5 12 8 12 8s3-3 5.5-3C21 5 23 9 21.5 12 19 16.5 12 21 12 21z"/></svg>'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12a8 8 0 0 1-11 7.4L3 21l1.6-7A8 8 0 1 1 21 12z"/></svg></div>'
+      +'</div>';
+  }
+  host.innerHTML=html;
+}
+makeTiles('igGridMember'); makeTiles('igGridAdmin');
+
+/* ---------- toast ---------- */
+var toastTimer;
+function toast(msg){ document.getElementById('toastMsg').textContent=msg; var t=document.getElementById('toast'); t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('show')},2200); }
+</script>
+</body>
+</html>
