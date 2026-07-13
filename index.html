@@ -22,14 +22,17 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-body{background:#071c22;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-     color:var(--ink);display:flex;align-items:flex-start;justify-content:center;padding:26px 18px 90px}
+body{background:#0b1417;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+     color:var(--ink);margin:0}
 h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif}
 button{font-family:inherit}
 
-/* ---- Outer browser frame ---------------------------------------------- */
-#frame{width:100%;max-width:1180px;background:#fff;border-radius:16px;overflow:hidden;
-       box-shadow:0 30px 80px rgba(0,0,0,.55);position:relative}
+/* ---- Outer browser frame (full-bleed, fills the window) ---------------- */
+#frame{width:100%;min-height:100vh;background:#fff;overflow:hidden;position:relative;
+       display:flex;flex-direction:column}
+#appArea{flex:1;display:flex;flex-direction:column;min-height:0}
+/* keep inner page content readable on very wide screens while frame is full-bleed */
+.canvas > .page{max-width:1220px;margin-left:auto;margin-right:auto}
 .chrome{background:#0B3B49;display:flex;align-items:center;gap:14px;padding:11px 16px}
 .dots{display:flex;gap:7px}
 .dots i{width:12px;height:12px;border-radius:50%;display:block}
@@ -64,7 +67,7 @@ button{font-family:inherit}
         justify-content:center;font-weight:700;font-size:14px}
 
 /* ---- Page canvas ------------------------------------------------------- */
-.canvas{background:var(--paper);min-height:600px;padding:30px 34px 42px}
+.canvas{background:var(--paper);flex:1;min-height:520px;padding:30px 34px 42px}
 .page{display:none;animation:fade .35s ease}
 .page.show{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -208,7 +211,7 @@ button{font-family:inherit}
 .summ .li{display:flex;justify-content:space-between;padding:9px 0;font-size:14.5px;border-bottom:1px dashed var(--line)}
 .summ .li.total{border:0;padding-top:14px;font-size:17px;font-weight:800;color:var(--deep)}
 .summ .li .muted{font-weight:400}
-.toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;
        padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 12px 30px rgba(0,0,0,.3);
        opacity:0;pointer-events:none;transition:.35s;display:flex;align-items:center;gap:10px;z-index:60}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -272,7 +275,7 @@ button{font-family:inherit}
 .guide b{color:var(--deep)}
 
 /* ===== LOGIN SCREENS ===== */
-.authwrap{min-height:600px;display:flex}
+.authwrap{flex:1;min-height:520px;display:flex}
 .authpane{display:none;width:100%}
 .authpane.show{display:flex}
 .authpane .side{flex:1;padding:48px 46px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;color:#eaf6f7}
@@ -310,6 +313,38 @@ button{font-family:inherit}
   .ticket .body{flex-direction:column}
   .authpane{flex-direction:column}.authpane .side{display:none}
   .hbar .row{grid-template-columns:70px 1fr 56px}
+}
+
+/* tables scroll sideways instead of breaking the layout */
+.tblscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+
+/* ---- Phone optimization ---- */
+@media (max-width:720px){
+  .chrome{flex-wrap:wrap;gap:8px;padding:9px 12px}
+  .addr{order:3;flex-basis:100%;font-size:12px}
+  .viewtoggle{margin-left:auto}
+  .viewtoggle button{padding:6px 11px;font-size:11.5px}
+  .topbar{flex-wrap:wrap;gap:10px;padding:12px 15px}
+  .brand .sub{display:none}
+  .nav{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:3px}
+  .nav button{white-space:nowrap;flex:0 0 auto}
+  .who{margin-left:auto;font-size:12.5px}
+  .who .signout{padding:5px 9px}
+  .canvas{padding:20px 15px 34px}
+  .canvas > .page{max-width:none}
+  .h-lg{font-size:23px}
+  .sub{font-size:14px}
+  .authpane .form{padding:30px 22px}
+  .side h2{font-size:28px}
+  .otp{gap:8px}
+  .otp input{width:44px;height:52px;font-size:22px}
+  .tbl{min-width:520px}
+  .banner{flex-wrap:wrap}
+  .memcard .row{flex-wrap:wrap;gap:16px}
+  .iggrid{grid-template-columns:repeat(2,1fr)}
+  #intro{padding:20px}
+  #intro h1{font-size:29px}
+  #intro p{font-size:15px}
 }
 </style>
 </head>
@@ -1313,6 +1348,13 @@ function makeTiles(id){
   host.innerHTML=html;
 }
 makeTiles('igGridMember'); makeTiles('igGridAdmin');
+
+/* wrap every table so it scrolls sideways on small screens instead of overflowing */
+document.querySelectorAll('table.tbl').forEach(function(t){
+  if(t.parentElement && t.parentElement.classList.contains('tblscroll')) return;
+  var w=document.createElement('div'); w.className='tblscroll';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
 
 /* ---------- toast ---------- */
 var toastTimer;
