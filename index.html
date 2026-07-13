@@ -77,7 +77,8 @@ button{font-family:inherit}
 
 /* grid + cards */
 .grid{display:grid;gap:18px}
-.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.c2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid > *{min-width:0}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
 .card h3{margin:0 0 4px;font-size:18px;color:var(--deep)}
 .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
@@ -309,14 +310,14 @@ button{font-family:inherit}
 .side.admin .twofa-ico svg{stroke:var(--sand-dk)}
 
 @media (max-width:860px){
-  .c2,.c3,.c4{grid-template-columns:1fr}
+  .c2,.c3,.c4{grid-template-columns:minmax(0,1fr)}
   .ticket .body{flex-direction:column}
   .authpane{flex-direction:column}.authpane .side{display:none}
   .hbar .row{grid-template-columns:70px 1fr 56px}
 }
 
 /* tables scroll sideways instead of breaking the layout */
-.tblscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+.tblscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;max-width:100%}
 
 /* ---- Phone optimization ---- */
 @media (max-width:720px){
